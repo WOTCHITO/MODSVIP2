@@ -19,7 +19,7 @@ const sessionPath = './GataBotSession/'
 for (const file of await fs.readdir(sessionPath)) {
 if (file.includes(uniqid)) {
 await fs.unlink(path.join(sessionPath, file))
-console.log(`${chalk.yellow.bold('[ ⚠️ Archivo Eliminado ]')} ${chalk.greenBright(`'${file}'`)}\n` +
+console.log(`${chalk.yellow.bold('[ ❎ Archivo Eliminado ]')} ${chalk.greenBright(`'${file}'`)}\n` +
 `${chalk.blue('(Session PreKey)')} ${chalk.redBright('que provoca el "undefined" en el chat')}`
 )
 }}}
