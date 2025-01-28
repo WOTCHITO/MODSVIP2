@@ -1,6 +1,5 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const fs = require('fs');
-const path = require('path');
+const axios = require('axios');
 
 // Crear una instancia del cliente
 const client = new Client({
@@ -11,39 +10,57 @@ client.on('ready', () => {
     console.log('El bot está listo para usar.');
 });
 
-// Cargar todos los comandos dinámicamente desde la carpeta 'commands'
-const commands = new Map();
-const commandsPath = path.join(__dirname, 'commands');
-
-// Leer todos los archivos .js dentro de la carpeta commands
-fs.readdirSync(commandsPath).forEach((file) => {
-    if (file.endsWith('.js')) {
-        const commandName = file.replace('.js', ''); // El nombre del comando (sin extensión)
-        const handler = require(path.join(commandsPath, file)); // Cargar el archivo
-        commands.set(commandName, handler); // Guardarlo en el mapa de comandos
-    }
-});
-
-// Escuchar mensajes entrantes
 client.on('message', async (message) => {
-    if (message.body.startsWith('/')) {
-        // Separar el comando y los argumentos
-        const args = message.body.slice(1).split(' ');
-        const command = args[0]; // Nombre del comando (sin el prefijo '/')
+    if (message.body.startsWith('/chk')) {
+        const parts = message.body.split(' ');
+        if (parts.length !== 2) {
+            await message.reply('Por favor, usa el formato correcto: /chk <número_de_tarjeta>');
+            return;
+        }
 
-        const handler = commands.get(command); // Buscar el handler correspondiente
+        const cardNumber = parts[1];
+        const apiUrl = `https://minos.alwaysdata.net/gates/b3.php?cc=${cardNumber}`;
+        const binInfoUrl = `https://binlist.io/lookup/${cardNumber.slice(0, 6)}/`;
 
-        if (handler) {
-            try {
-                await handler(message, args.slice(1)); // Ejecutar el handler con argumentos
-            } catch (error) {
-                console.error(`Error al ejecutar el comando /${command}:`, error);
-                await message.reply('Ocurrió un error al ejecutar tu comando.');
-            }
-        } else {
-            await message.reply('Comando no reconocido. Usa /help para ver la lista de comandos.');
+        try {
+            // Solicitud a la API para obtener información de la tarjeta
+            const apiResponse = await axios.get(apiUrl);
+            const { card = 'No disponible', status = 'No disponible', response: responseMessage = 'No disponible' } = apiResponse.data;
+
+            // Solicitud a la API de BIN
+            const binResponse = await axios.get(binInfoUrl);
+            const binData = binResponse.data;
+            const brand = binData.scheme || 'No disponible';
+            const lv = binData.type || 'No disponible';
+            const typ = binData.category || 'No disponible';
+            const country = (binData.country && binData.country.name) || 'No disponible';
+            const flag = (binData.country && binData.country.emoji) || 'No disponible';
+            const bank = (binData.bank && binData.bank.name) || 'No disponible';
+
+            // Formatear el mensaje de respuesta
+            const resultMessage = `
+B3 AUTH
+-------------------------------------------------------
+[ϟ] Cc:: ${card}
+[ϟ] Status: ${status}
+[ϟ] Response: ${responseMessage}
+
+[ϟ] Info ${brand} - ${lv} - ${typ}
+[ϟ] Bank: ${bank}
+[ϟ] Country: ${country} - ${flag}
+
+[ϟ] Req: ${message.from}
+-------------------------------------------------------
+Bot by @EDER.JS.
+`;
+
+            // Enviar el resultado al chat de WhatsApp
+            await message.reply(resultMessage);
+        } catch (error) {
+            await message.reply(`Error al conectar con la API: ${error.message}`);
         }
     }
 });
 
 // Iniciar el cliente
+client.initialize();
