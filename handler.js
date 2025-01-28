@@ -1590,4 +1590,4 @@ const users = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws
 for (const userr of users) {
 userr.subreloadHandler(false)
 }}});
-const handler = async (m, { conn, command }) => command === 'chk' && await conn.sendMessage(m.chat, { text: '✔ El comando .chk ha sido ejecutado con éxito.' }, { quoted: m });
+
