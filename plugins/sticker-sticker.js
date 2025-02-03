@@ -17,7 +17,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (/webp|image|video/g.test(mime)) {
       if (/video/g.test(mime)) if ((q.msg || q).seconds > 11) return m.reply('⚠️ El video no debe durar más de 7 segundos')
       let img = await q.download?.()
-      if (!img) throw `❗ Responde a una imagen/video/gif o enlace usando *${usedPrefix + command}* @${m.sender.split('@')[0]}`
+      if (!img) throw `n\n\> ❗ Responde a una imagen/video/gif o enlace usando *${usedPrefix + command}* @${m.sender.split('@')[0]}`
       
       let out
       try {
@@ -58,7 +58,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         }
       }
     }, { quoted: m })
-    else throw `❗ Vuelve a intentarlo @${m.sender.split('@')[0]}\nResponde a una imagen/video/gif o enlace .jpg*`
+    else throw `\n\n> ❗ Vuelve a intentarlo @${m.sender.split('@')[0]}\nResponde a una imagen/video/gif o enlace .jpg*`
   }
   user.lastmiming = new Date * 1
 }
