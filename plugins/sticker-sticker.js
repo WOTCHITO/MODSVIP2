@@ -58,7 +58,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         }
       }
     }, { quoted: m })
-    else throw `\n\n> ❗ Vuelve a intentarlo @${m.sender.split('@')[0]}\nResponde a una imagen/video/gif o enlace .jpg*`
+    else throw `\n\n> ❗ Vuelve a intentarlo @${m.sender.split('@')[0]}\n\n> Responde a una imagen/video/gif o enlace .jpg*`
   }
   user.lastmiming = new Date * 1
 }
